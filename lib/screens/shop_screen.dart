@@ -64,6 +64,7 @@ class _ShopScreenState extends State<ShopScreen> {
     await prefs.setString(_usingKey, _usingCharacter);
   }
 
+  // -------------- Character List --------------
   final List<CharacterItem> _characters = const [
     CharacterItem(
       name: 'Monkey',
@@ -76,7 +77,7 @@ class _ShopScreenState extends State<ShopScreen> {
       name: 'Panda',
       description: 'Bamboo jumper',
       stars: 4,
-      price: 20,
+      price: 2000,
       imagePath: 'assets/images/panda.webp',
     ),
     CharacterItem(
@@ -184,7 +185,10 @@ class _ShopScreenState extends State<ShopScreen> {
                 const SizedBox(height: 10),
                 _buildFeaturedCard(),
                 const SizedBox(height: 16),
-                _buildSectionTitle('JUNGLE CREW', suffix: '${_characters.length} AVAILABLE'),
+                _buildSectionTitle(
+                  'JUNGLE CREW',
+                  suffix: '${_characters.length} AVAILABLE',
+                ),
                 const SizedBox(height: 8),
                 Expanded(child: _buildCrewList()),
               ],
@@ -208,7 +212,11 @@ class _ShopScreenState extends State<ShopScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white.withOpacity(0.2)),
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+            child: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 16,
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -249,6 +257,7 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
+  // -------------- Selected Character Card --------------
   Widget _buildFeaturedCard() {
     final using = _usingCharacter;
     final char = _characters.firstWhere(
@@ -259,9 +268,9 @@ class _ShopScreenState extends State<ShopScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Color(0xff3f4920).withOpacity(0.6),
+        color: Color(0xff3f4920).withOpacity(0.75),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.12)),
+        border: Border.all(color: Color(0xff86a801)),
       ),
       child: Row(
         children: [
@@ -300,7 +309,10 @@ class _ShopScreenState extends State<ShopScreen> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Color(0xff49561d).withOpacity(0.6),
                     borderRadius: BorderRadius.circular(20),
@@ -323,6 +335,8 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
+  // -------------- Section Title --------------
+
   Widget _buildSectionTitle(String title, {String? suffix}) {
     return Row(
       children: [
@@ -330,7 +344,7 @@ class _ShopScreenState extends State<ShopScreen> {
           title,
           style: const TextStyle(
             fontFamily: 'FredokaOne',
-            fontSize: 14,
+            fontSize: 15,
             color: Colors.white,
           ),
         ),
@@ -341,14 +355,15 @@ class _ShopScreenState extends State<ShopScreen> {
             style: TextStyle(
               fontFamily: 'Nunito',
               fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: Colors.white.withOpacity(0.6),
+              fontSize: 13,
+              color: Colors.white,
             ),
           ),
       ],
     );
   }
 
+  // -------------- Crew List --------------
   Widget _buildCrewList() {
     return ListView.separated(
       itemCount: _characters.length,
@@ -361,71 +376,96 @@ class _ShopScreenState extends State<ShopScreen> {
         return GestureDetector(
           onTap: () => _handleCharacterTap(item),
           child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Color(0xff3f4920).withOpacity(0.6),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color(0xff3f4920).withOpacity(0.75),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    child: Image.asset(
+                      item.imagePath,
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Image.asset(item.imagePath, width: 56, height: 56, fit: BoxFit.cover),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: const TextStyle(
-                        fontFamily: 'FredokaOne',
-                        fontSize: 15,
-                        color: Colors.white,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        style: const TextStyle(
+                          fontFamily: 'FredokaOne',
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.8),
+                      const SizedBox(height: 2),
+                      Text(
+                        item.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              if (isUsing)
-                _pill(text: 'USING', bg: Color(0xff86a801).withOpacity(0.6), fg: Colors.greenAccent, price: item.price)
-              else if (isOwned)
-                _pill(text: 'USE', bg: Color(0xff49561d).withOpacity(0.6), fg: Colors.greenAccent, price: item.price)
-              else
-                _pill(
+                const SizedBox(width: 10),
+                if (isUsing)
+                  _priceButton(
+                    text: 'USING',
+                    bg: Color(0xff86a801).withOpacity(0.6),
+                    fg: Colors.greenAccent,
+                    price: item.price,
+                  )
+                else if (isOwned)
+                  _priceButton(
+                    text: 'USE',
+                    bg: Color(0xff49561d).withOpacity(0.6),
+                    fg: Colors.greenAccent,
+                    price: item.price,
+                  )
+                else
+                  _priceButton(
                     text: canAfford ? 'BUY' : 'BUY',
                     price: item.price,
-                    bg: canAfford ? Colors.yellow : Colors.white.withOpacity(0.2),
-                    fg: canAfford ? const Color(0xFF1A2A10) : Colors.white70),
-            ],
+                    bg: canAfford
+                        ? Colors.yellow
+                        : Colors.white.withOpacity(0.2),
+                    fg: canAfford ? const Color(0xFF1A2A10) : Colors.white,
+                  ),
+              ],
+            ),
           ),
-        ));
+        );
       },
     );
   }
 
-  Widget _pill({required String text, int? price, required Color bg, required Color fg}) {
+  // -------------- Price Button --------------
+  Widget _priceButton({
+    required String text,
+    int? price,
+    required Color bg,
+    required Color fg,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -450,19 +490,14 @@ class _ShopScreenState extends State<ShopScreen> {
           ],
           Text(
             text,
-            style: TextStyle(
-              fontFamily: 'FredokaOne',
-              fontSize: 12,
-              color: fg,
-            ),
+            style: TextStyle(fontFamily: 'FredokaOne', fontSize: 12, color: fg),
           ),
         ],
       ),
     );
   }
 
-  // Legacy helpers removed (new UI in use)
-
+  // -------------- Handle Character Tap --------------
   Future<void> _handleCharacterTap(CharacterItem item) async {
     final isOwned = _ownedCharacters.contains(item.name);
     if (isOwned) {
@@ -500,6 +535,7 @@ class _ShopScreenState extends State<ShopScreen> {
     _saveCharacterState();
   }
 
+  // -------------- Purchase Confirm Dialog --------------
   Future<bool> _showPurchaseConfirmDialog(CharacterItem item) async {
     final result = await showDialog<bool>(
       context: context,
@@ -519,7 +555,10 @@ class _ShopScreenState extends State<ShopScreen> {
               ],
             ),
             borderRadius: BorderRadius.circular(34),
-            border: Border.all(color: const Color(0xFF86A801).withOpacity(0.45), width: 1.4),
+            border: Border.all(
+              color: const Color(0xFF86A801).withOpacity(0.45),
+              width: 1.4,
+            ),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFFB7E300).withOpacity(0.18),
@@ -553,7 +592,10 @@ class _ShopScreenState extends State<ShopScreen> {
                     ),
                   ],
                 ),
-                child: ClipRRect(borderRadius: BorderRadius.circular(4), child: Image.asset(item.imagePath, fit: BoxFit.cover)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.asset(item.imagePath, fit: BoxFit.cover),
+                ),
               ),
               const SizedBox(height: 14),
               Text(
@@ -646,33 +688,34 @@ class _ShopScreenState extends State<ShopScreen> {
                       ),
                     ),
                   ),
-                   GestureDetector(
-                onTap: () => Navigator.pop(context, false),
-                child: Container(
-                  width: MediaQuery.of(context).size.width / 2.8,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF163932).withOpacity(0.55),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'CANCEL',
-                      style: TextStyle(
-                        fontFamily: 'FredokaOne',
-                        fontSize: 16,
-                        letterSpacing: 1.0,
-                        color: Colors.white.withOpacity(0.75),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context, false),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 2.8,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF163932).withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'CANCEL',
+                          style: TextStyle(
+                            fontFamily: 'FredokaOne',
+                            fontSize: 16,
+                            letterSpacing: 1.0,
+                            color: Colors.white.withOpacity(0.75),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
                 ],
               ),
               const SizedBox(height: 15),
-             
             ],
           ),
         ),
@@ -681,6 +724,7 @@ class _ShopScreenState extends State<ShopScreen> {
     return result ?? false;
   }
 
+  // -------------- Info Dialog --------------
   Future<void> _showInfoDialog({
     required String title,
     required String message,
@@ -703,7 +747,10 @@ class _ShopScreenState extends State<ShopScreen> {
               ],
             ),
             borderRadius: BorderRadius.circular(34),
-            border: Border.all(color: const Color(0xFF86A801).withOpacity(0.35), width: 1.4),
+            border: Border.all(
+              color: const Color(0xFF86A801).withOpacity(0.35),
+              width: 1.4,
+            ),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF8BC34A).withOpacity(0.22),
@@ -753,10 +800,17 @@ class _ShopScreenState extends State<ShopScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFCDD2),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black.withOpacity(0.8), width: 2),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.8),
+                          width: 2,
+                        ),
                       ),
                       child: const Center(
-                        child: Icon(Icons.close_rounded, size: 16, color: Colors.black87),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   ),
@@ -835,7 +889,10 @@ class _ShopScreenState extends State<ShopScreen> {
 
   Widget _buildHighlightedMessage(String message) {
     final parts = message.split(RegExp(r'(\d+|coins?)'));
-    final matches = RegExp(r'(\d+|coins?)', caseSensitive: false).allMatches(message).toList();
+    final matches = RegExp(
+      r'(\d+|coins?)',
+      caseSensitive: false,
+    ).allMatches(message).toList();
     final spans = <TextSpan>[];
 
     for (int i = 0; i < parts.length; i++) {
@@ -873,10 +930,4 @@ class _ShopScreenState extends State<ShopScreen> {
       text: TextSpan(children: spans),
     );
   }
-
-  // Legacy placeholder unused in new UI (removed)
 }
-
-// Legacy card unused (removed)
-
-// (Removed legacy action button)

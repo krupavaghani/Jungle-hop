@@ -1,7 +1,8 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/colors.dart';
-import '../widgets/jungle_tree.dart';
 import 'level_select_screen.dart';
 import 'coin_history_screen.dart';
 import 'shop_screen.dart';
@@ -86,9 +87,12 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  /// Responsive scale from shortest side (reference ~phone width 375).
+  static double _responsiveScale(double shortestSide) =>
+      (shortestSide / 375).clamp(0.72, 1.25);
+
   @override
   Widget build(BuildContext context) {
-    // final paddingTop = MediaQuery.of(context).padding.top;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -98,153 +102,207 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
         child: SafeArea(
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Opacity(
-                  opacity: 0.35,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [JungleTree(), JungleTree(small: true), JungleTree()],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final mq = MediaQuery.sizeOf(context);
+              final shortest = mq.shortestSide;
+              final scale = _responsiveScale(shortest);
+              // Short viewports (landscape / small phones): tighten vertical gaps.
+              final maxH = constraints.maxHeight;
+              final vCompress =
+                  maxH < 520 ? (maxH / 520).clamp(0.5, 1.0) : 1.0;
+              final horizontalPad = (20 * scale).clamp(12.0, 28.0);
+              final avatar = (44 * scale).clamp(36.0, 56.0);
+              final headerTitle = (24 * scale).clamp(18.0, 30.0);
+              final settingsBtn = (40 * scale).clamp(36.0, 48.0);
+              final jungleTitle = (44 * scale).clamp(26.0, 52.0);
+              final seasonFont = (12 * scale).clamp(10.0, 14.0);
+              final seasonDot = (16 * scale).clamp(12.0, 18.0);
+              final playFont = (24 * scale).clamp(16.0, 28.0);
+              final playVPad = (15 * scale).clamp(10.0, 18.0);
+              final footerFont = (11 * scale).clamp(9.0, 12.0);
+              final gapSm = ((8 * scale).clamp(4.0, 12.0)) * vCompress;
+              final gapMd = ((16 * scale).clamp(8.0, 22.0)) * vCompress;
+              final gapLg = ((24 * scale).clamp(12.0, 28.0)) * vCompress;
+              final playWidth = min(360.0, constraints.maxWidth);
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPad),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 12),
-                    // Header: Avatar + Title + Settings
+                    SizedBox(
+                        height: ((12 * scale).clamp(6.0, 16.0)) * vCompress),
                     Row(
                       children: [
                         ClipOval(
                           child: Image.asset(
                             'assets/images/profileImg.png',
-                            width: 44,
-                            height: 44,
+                            width: avatar,
+                            height: avatar,
                             fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
+                        SizedBox(width: (12 * scale).clamp(8.0, 16.0)),
+                        Expanded(
                           child: Text(
                             'Jungle Hop',
                             style: TextStyle(
                               fontFamily: 'FredokaOne',
-                              fontSize: 24,
+                              fontSize: headerTitle,
                               color: Colors.white,
-                              shadows: [Shadow(color: Colors.black54, blurRadius: 6, offset: Offset(0,1))],
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                         GestureDetector(
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SettingsScreen(),
+                            ),
                           ),
                           child: Container(
-                            width: 40,
-                            height: 40,
+                            width: settingsBtn,
+                            height: settingsBtn,
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.15),
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withOpacity(0.25)),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.25),
+                              ),
                             ),
-                            child: const Icon(Icons.settings, color: Colors.white),
+                            child: Icon(
+                              Icons.settings,
+                              color: Colors.white,
+                              size: (22 * scale).clamp(18.0, 26.0),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: (18 * scale).clamp(10.0, 22.0)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _Badge(
                           icon: '🪙',
                           label: _availableCoins.toString(),
+                          scale: scale,
                           onTapPlus: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const ShopScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const ShopScreen(),
+                            ),
                           ),
                         ),
-                        
                       ],
                     ),
-
-                    // Character tile with currency/energy badges
-                  
-                    Image.asset(
-                              'assets/images/monkey.png',
-                              fit: BoxFit.cover,
-                              // keep selected emoji in semantics to avoid lints and for accessibility
-                              semanticLabel: _selectedEmoji,
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: (4 * scale).clamp(0.0, 12.0),
+                              ),
+                              child: Image.asset(
+                                'assets/images/monkey.png',
+                                fit: BoxFit.contain,
+                                width: double.infinity,
+                                semanticLabel: _selectedEmoji,
+                              ),
                             ),
-
-                    // const SizedBox(height: 20),
-                    // Title and season pill
-                    const Center(
-                      child: Text(
-                        'JUNGLE\nHOP',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'FredokaOne',
-                          height: 0.95,
-                          fontSize: 44,
-                          color: JColors.yellow,
-                          shadows: [Shadow(color: Color(0x66000000), blurRadius: 10, offset: Offset(0,3))],
-                        ),
+                          ),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'JUNGLE\nHOP',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'FredokaOne',
+                                height: 0.95,
+                                fontSize: jungleTitle,
+                                color: JColors.yellow,
+                                shadows: const [
+                                  Shadow(
+                                    color: Color(0x66000000),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: gapSm),
+                          Center(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: (14 * scale).clamp(10.0, 18.0),
+                                vertical: (6 * scale).clamp(4.0, 10.0),
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '•',
+                                    style: TextStyle(
+                                      color: JColors.yellow,
+                                      fontSize: seasonDot,
+                                    ),
+                                  ),
+                                  SizedBox(width: (8 * scale).clamp(4.0, 12.0)),
+                                  Text(
+                                    'SEASON 1: MOSSY MAYHEM',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito',
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                      fontSize: seasonFont,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text('•', style: TextStyle(color: JColors.yellow, fontSize: 16)),
-                            SizedBox(width: 8),
-                            Text('SEASON 1: MOSSY MAYHEM',
-                                style: TextStyle(
-                                  fontFamily: 'Nunito',
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                )),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-                    // Play button
+                    SizedBox(height: gapLg),
                     Center(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const LevelSelectScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const LevelSelectScreen(),
+                            ),
                           );
                         },
                         child: Container(
-                          width: 360,
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          width: playWidth,
+                          padding: EdgeInsets.symmetric(vertical: playVPad),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [JColors.yellow, JColors.yellowDark],
+                              colors: [
+                                JColors.yellow,
+                                JColors.yellowDark,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -252,18 +310,18 @@ class _HomeScreenState extends State<HomeScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: JColors.yellow.withOpacity(0.35),
-                                blurRadius: 24,
-                                offset: const Offset(0, 10),
-                              )
+                                blurRadius: (24 * scale).clamp(16.0, 32.0),
+                                offset: Offset(0, (10 * scale).clamp(6.0, 14.0)),
+                              ),
                             ],
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               '▶  PLAY',
                               style: TextStyle(
                                 fontFamily: 'FredokaOne',
-                                fontSize: 24,
-                                color: Color(0xFF1A2A10),
+                                fontSize: playFont,
+                                color: const Color(0xFF1A2A10),
                                 letterSpacing: 1,
                               ),
                             ),
@@ -271,55 +329,56 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-                    // Shop + History buttons
+                    SizedBox(height: gapMd),
                     Row(
                       children: [
                         Expanded(
                           child: _LargeSoftButton(
                             icon: '🎁',
                             label: 'SHOP',
+                            scale: scale,
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const ShopScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ShopScreen(),
+                              ),
                             ).then((_) => _loadCoins()),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: (16 * scale).clamp(10.0, 22.0)),
                         Expanded(
                           child: _LargeSoftButton(
                             icon: '🗂️',
                             label: 'HISTORY',
+                            scale: scale,
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const CoinHistoryScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const CoinHistoryScreen(),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-
-                    const Spacer(),
-                    // Footer version
+                    SizedBox(
+                        height: ((10 * scale).clamp(6.0, 14.0)) * vCompress),
                     Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          'VERSION 1.0 • JUNGLE JUMPERS STUDIO',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 11,
-                            color: Colors.white.withOpacity(0.5),
-                            letterSpacing: 2,
-                          ),
+                      child: Text(
+                        'VERSION 1.0 • JUNGLE HOP STUDIO',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: footerFont,
+                          color: Colors.white.withOpacity(0.5),
+                          letterSpacing: (2 * scale).clamp(1.0, 2.5),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -327,17 +386,27 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-
 class _Badge extends StatelessWidget {
   final String icon;
   final String label;
+  final double scale;
   final VoidCallback? onTapPlus;
-  const _Badge({required this.icon, required this.label, this.onTapPlus});
+  const _Badge({
+    required this.icon,
+    required this.label,
+    required this.scale,
+    this.onTapPlus,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final padH = (10 * scale).clamp(8.0, 14.0);
+    final padV = (6 * scale).clamp(4.0, 10.0);
+    final font = (14 * scale).clamp(11.0, 16.0);
+    final plus = (20 * scale).clamp(18.0, 24.0);
+    final iconPlus = (14 * scale).clamp(12.0, 16.0);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
       decoration: BoxDecoration(
         color: const Color(0xFF0F0F12).withOpacity(0.85),
         borderRadius: BorderRadius.circular(20),
@@ -345,31 +414,35 @@ class _Badge extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 6),
+          Text(icon, style: TextStyle(fontSize: font)),
+          SizedBox(width: (6 * scale).clamp(4.0, 8.0)),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'FredokaOne',
-              fontSize: 14,
+              fontSize: font,
               color: Colors.white,
             ),
           ),
           if (onTapPlus != null) ...[
-            const SizedBox(width: 8),
+            SizedBox(width: (8 * scale).clamp(6.0, 12.0)),
             GestureDetector(
               onTap: onTapPlus,
               child: Container(
-                width: 20,
-                height: 20,
+                width: plus,
+                height: plus,
                 decoration: BoxDecoration(
                   color: Colors.yellow.withOpacity(0.9),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.add, size: 14, color: Color(0xFF1A2A10)),
+                child: Icon(
+                  Icons.add,
+                  size: iconPlus,
+                  color: const Color(0xFF1A2A10),
+                ),
               ),
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -379,15 +452,24 @@ class _Badge extends StatelessWidget {
 class _LargeSoftButton extends StatelessWidget {
   final String icon;
   final String label;
+  final double scale;
   final VoidCallback onTap;
-  const _LargeSoftButton({required this.icon, required this.label, required this.onTap});
+  const _LargeSoftButton({
+    required this.icon,
+    required this.label,
+    required this.scale,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final vPad = (16 * scale).clamp(10.0, 20.0);
+    final emoji = (18 * scale).clamp(14.0, 22.0);
+    final labelSize = (16 * scale).clamp(12.0, 18.0);
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: vPad),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFF6FD680), Color(0xFF1F8D4A)],
@@ -398,21 +480,21 @@ class _LargeSoftButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.25),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            )
+              blurRadius: (12 * scale).clamp(8.0, 16.0),
+              offset: Offset(0, (6 * scale).clamp(4.0, 8.0)),
+            ),
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
+            Text(icon, style: TextStyle(fontSize: emoji)),
+            SizedBox(width: (8 * scale).clamp(4.0, 10.0)),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'FredokaOne',
-                fontSize: 16,
+                fontSize: labelSize,
                 color: Colors.white,
               ),
             ),

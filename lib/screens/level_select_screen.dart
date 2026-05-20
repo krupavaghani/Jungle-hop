@@ -83,25 +83,28 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.94, end: 1.06).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulse = Tween<double>(
+      begin: 0.94,
+      end: 1.06,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     )..repeat(reverse: true);
-    _float = Tween<double>(begin: -5.0, end: 5.0).animate(
-      CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut),
-    );
+    _float = Tween<double>(
+      begin: -5.0,
+      end: 5.0,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
 
     _godRayCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
-    _godRay = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _godRayCtrl, curve: Curves.easeInOut),
-    );
+    _godRay = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _godRayCtrl, curve: Curves.easeInOut));
 
     _loadProgress();
   }
@@ -121,7 +124,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
       _scroll.animateTo(
         ((idx * _rowH) - 200.0).clamp(0.0, double.infinity) * scale,
         duration: const Duration(milliseconds: 700),
-        curve: Curves.easeOut,
+        curve: Curves.easeInOut,
       );
     });
   }
@@ -145,9 +148,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final levels = _levels;
@@ -170,22 +171,25 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
           SingleChildScrollView(
             controller: _scroll,
             physics: const BouncingScrollPhysics(),
-            child: SizedBox(
-              width: screenW,
-              height: canvasH * scale,
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_pulse, _float]),
-                builder: (_, __) => CustomPaint(
-                  size: Size(screenW, canvasH * scale),
-                  painter: _PathPainter(
-                    levels: levels,
-                    scale: scale,
-                    stoneCenter: _stoneCenter,
-                  ),
-                  child: Stack(
-                    children: List.generate(
-                      levels.length,
-                      (i) => _buildStoneWidget(levels[i], i, scale),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: SizedBox(
+                width: screenW,
+                height: canvasH * scale,
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([_pulse, _float]),
+                  builder: (_, __) => CustomPaint(
+                    size: Size(screenW, canvasH * scale),
+                    painter: _PathPainter(
+                      levels: levels,
+                      scale: scale,
+                      stoneCenter: _stoneCenter,
+                    ),
+                    child: Stack(
+                      children: List.generate(
+                        levels.length,
+                        (i) => _buildStoneWidget(levels[i], i, scale),
+                      ),
                     ),
                   ),
                 ),
@@ -234,10 +238,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
               offset: Offset(0, dy),
               child: Transform.scale(
                 scale: sc,
-                child: _StoneNodeWidget(
-                  level: lvl,
-                  isSelected: false,
-                ),
+                child: _StoneNodeWidget(level: lvl, isSelected: false),
               ),
             );
           },
@@ -268,18 +269,22 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
         child: Row(
           children: [
             GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
             ),
-            child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
-          ),
-        ),
             const Spacer(),
             Column(
               children: [
@@ -323,7 +328,6 @@ class _LevelSelectScreenState extends State<LevelSelectScreen>
       ),
     );
   }
-
 }
 
 class _JungleBgPainter extends CustomPainter {
@@ -362,9 +366,27 @@ class _JungleBgPainter extends CustomPainter {
   void _drawFarTrees(Canvas canvas, double w, double h) {
     final rng = Random(42);
     final layerDefs = [
-      (color: const Color(0xFF081408), yBase: 0.72, cnt: 9, maxH: 0.48, wf: 0.17),
-      (color: const Color(0xFF0C1E0C), yBase: 0.78, cnt: 11, maxH: 0.40, wf: 0.21),
-      (color: const Color(0xFF112611), yBase: 0.84, cnt: 13, maxH: 0.33, wf: 0.25),
+      (
+        color: const Color(0xFF081408),
+        yBase: 0.72,
+        cnt: 9,
+        maxH: 0.48,
+        wf: 0.17,
+      ),
+      (
+        color: const Color(0xFF0C1E0C),
+        yBase: 0.78,
+        cnt: 11,
+        maxH: 0.40,
+        wf: 0.21,
+      ),
+      (
+        color: const Color(0xFF112611),
+        yBase: 0.84,
+        cnt: 13,
+        maxH: 0.33,
+        wf: 0.25,
+      ),
     ];
 
     for (final layer in layerDefs) {
@@ -457,7 +479,11 @@ class _JungleBgPainter extends CustomPainter {
       canvas.translate(lx, ly);
       canvas.rotate((rng.nextDouble() - 0.5) * pi);
       canvas.drawOval(
-        Rect.fromCenter(center: Offset.zero, width: lr * 3.8, height: lr * 0.75),
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: lr * 3.8,
+          height: lr * 0.75,
+        ),
         Paint()..color = col.withOpacity(op),
       );
       canvas.drawLine(
@@ -479,18 +505,19 @@ class _JungleBgPainter extends CustomPainter {
         height: h * 0.38,
       ),
       Paint()
-        ..shader = RadialGradient(
-          colors: [
-            const Color(0xFF88FF44).withOpacity(0.055),
-            Colors.transparent,
-          ],
-        ).createShader(
-          Rect.fromCenter(
-            center: Offset(w * 0.5, h * 0.12),
-            width: w * 1.2,
-            height: h * 0.38,
-          ),
-        ),
+        ..shader =
+            RadialGradient(
+              colors: [
+                const Color(0xFF88FF44).withOpacity(0.055),
+                Colors.transparent,
+              ],
+            ).createShader(
+              Rect.fromCenter(
+                center: Offset(w * 0.5, h * 0.12),
+                width: w * 1.2,
+                height: h * 0.38,
+              ),
+            ),
     );
   }
 
@@ -536,8 +563,15 @@ class _ForegroundLeavesPainter extends CustomPainter {
     }
   }
 
-  void _corner(Canvas canvas, double ox, double oy, double w, Random rng,
-      {required bool flipX, required bool flipY}) {
+  void _corner(
+    Canvas canvas,
+    double ox,
+    double oy,
+    double w,
+    Random rng, {
+    required bool flipX,
+    required bool flipY,
+  }) {
     final colors = [
       const Color(0xFF1B5E20),
       const Color(0xFF2E7D32),
@@ -569,7 +603,11 @@ class _ForegroundLeavesPainter extends CustomPainter {
             colors: [
               col.withOpacity(op),
               col.withOpacity(op * 0.55),
-              Color.lerp(col, const Color(0xFF4CAF50), 0.3)!.withOpacity(op * 0.4),
+              Color.lerp(
+                col,
+                const Color(0xFF4CAF50),
+                0.3,
+              )!.withOpacity(op * 0.4),
             ],
             stops: const [0.0, 0.6, 1.0],
           ).createShader(Rect.fromLTWH(0, -wid / 2, len, wid)),
@@ -656,21 +694,37 @@ class _StonePainter extends CustomPainter {
     final cy = size.height / 2;
     final rx = size.width / 2;
     final ry = size.height / 2;
-    final rect = Rect.fromCenter(center: Offset(cx, cy), width: rx * 2, height: ry * 2);
+    final rect = Rect.fromCenter(
+      center: Offset(cx, cy),
+      width: rx * 2,
+      height: ry * 2,
+    );
 
     canvas.drawOval(rect, Paint()..color = const Color(0xFF37474F));
     canvas.drawOval(
-      Rect.fromCenter(center: Offset(cx - 1, cy - 2), width: rx * 1.88, height: ry * 1.80),
+      Rect.fromCenter(
+        center: Offset(cx - 1, cy - 2),
+        width: rx * 1.88,
+        height: ry * 1.80,
+      ),
       Paint()..color = const Color(0xFF546E7A),
     );
     canvas.drawOval(
-      Rect.fromCenter(center: Offset(cx - 2, cy - 4), width: rx * 1.70, height: ry * 1.50),
+      Rect.fromCenter(
+        center: Offset(cx - 2, cy - 4),
+        width: rx * 1.70,
+        height: ry * 1.50,
+      ),
       Paint()..color = const Color(0xFF607D8B),
     );
 
     if (isSelected) {
       canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx, cy), width: rx * 2.14, height: ry * 2.14),
+        Rect.fromCenter(
+          center: Offset(cx, cy),
+          width: rx * 2.14,
+          height: ry * 2.14,
+        ),
         Paint()
           ..color = const Color(0xFFFFE033)
           ..style = PaintingStyle.stroke
@@ -688,7 +742,13 @@ class _StonePainter extends CustomPainter {
         _drawNumber(canvas, '${level.number}', center, size.height * 0.52);
         break;
       case LevelState.locked:
-        _drawDisabledNumber(canvas, '${level.number}', center, size.height * 0.46, size);
+        _drawDisabledNumber(
+          canvas,
+          '${level.number}',
+          center,
+          size.height * 0.46,
+          size,
+        );
         break;
     }
   }
@@ -706,7 +766,10 @@ class _StonePainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    tp.paint(canvas, Offset(center.dx - tp.width / 2, center.dy - tp.height / 2));
+    tp.paint(
+      canvas,
+      Offset(center.dx - tp.width / 2, center.dy - tp.height / 2),
+    );
   }
 
   void _drawStars(Canvas canvas, Offset center, int stars) {
@@ -734,7 +797,11 @@ class _StonePainter extends CustomPainter {
           path,
           Paint()
             ..shader = RadialGradient(
-              colors: const [Color(0xFFFFF59D), Color(0xFFFFD54F), Color(0xFFFFA000)],
+              colors: const [
+                Color(0xFFFFF59D),
+                Color(0xFFFFD54F),
+                Color(0xFFFFA000),
+              ],
             ).createShader(Rect.fromCircle(center: c, radius: r)),
         );
         canvas.drawPath(
@@ -750,7 +817,13 @@ class _StonePainter extends CustomPainter {
     }
   }
 
-  void _drawDisabledNumber(Canvas canvas, String text, Offset center, double fontSize, Size size) {
+  void _drawDisabledNumber(
+    Canvas canvas,
+    String text,
+    Offset center,
+    double fontSize,
+    Size size,
+  ) {
     final blurPaint = Paint()
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.2);
 
@@ -766,11 +839,14 @@ class _StonePainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    canvas.saveLayer(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint(),
+    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
+    shadow.paint(
+      canvas,
+      Offset(
+        center.dx - shadow.width / 2 + 1.2,
+        center.dy - shadow.height / 2 + 1.8,
+      ),
     );
-    shadow.paint(canvas, Offset(center.dx - shadow.width / 2 + 1.2, center.dy - shadow.height / 2 + 1.8));
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
       blurPaint..blendMode = BlendMode.srcATop,
@@ -789,9 +865,13 @@ class _StonePainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    tp.paint(canvas, Offset(center.dx - tp.width / 2, center.dy - tp.height / 2));
+    tp.paint(
+      canvas,
+      Offset(center.dx - tp.width / 2, center.dy - tp.height / 2),
+    );
   }
 
   @override
-  bool shouldRepaint(_StonePainter oldDelegate) => oldDelegate.isSelected != isSelected;
+  bool shouldRepaint(_StonePainter oldDelegate) =>
+      oldDelegate.isSelected != isSelected;
 }

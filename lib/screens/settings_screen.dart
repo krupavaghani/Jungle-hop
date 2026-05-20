@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/best_score_service.dart';
 import '../services/coin_history_service.dart';
 import '../services/level_progress_service.dart';
 import '../utils/colors.dart';
@@ -93,28 +94,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F0F12).withOpacity(0.85),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white.withOpacity(0.12)),
-                      ),
-                      child: Row(children: const [
-                        Icon(Icons.settings, color: Colors.white, size: 14),
-                        SizedBox(width: 6),
-                        Text(
-                          'JJ Studio',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ]),
-                    ),
                   ],
                 ),
               ),
@@ -126,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     _SectionTitle(label: 'Audio'),
                     _ToggleTile(
-                      icon: '🎵',
+                      icon: Icons.music_note_rounded,
                       label: 'Background Music',
                       value: _music,
                       onChanged: (v) {
@@ -135,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     _SliderTile(
-                      icon: '🔊',
+                      icon: Icons.volume_up_rounded,
                       label: 'Volume',
                       value: _volume,
                       onChanged: (v) {
@@ -144,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     _ToggleTile(
-                      icon: '🔔',
+                      icon: Icons.notifications_active_rounded,
                       label: 'Sound Effects',
                       value: _sfx,
                       onChanged: (v) {
@@ -155,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 16),
                     _SectionTitle(label: 'Game'),
                     _ToggleTile(
-                      icon: '📳',
+                      icon: Icons.vibration_rounded,
                       label: 'Vibration',
                       value: _vibration,
                       onChanged: (v) {
@@ -164,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     _ToggleTile(
-                      icon: '🔔',
+                      icon: Icons.notifications_active_rounded,
                       label: 'Notifications',
                       value: _notifications,
                       onChanged: (v) {
@@ -174,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _SectionTitle(label: 'About'),
-                    _InfoTile(icon: '📱', label: 'Version', value: '1.0.0'),
+                    _InfoTile(icon: Icons.phone_android_rounded, label: 'Version', value: '1.0.0'),
                     const SizedBox(height: 24),
                     _DangerButton(
                       label: '🗑️  Reset Progress',
@@ -282,6 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onTap: () async {
                                       await CoinHistoryService.resetAll();
                                       await LevelProgressService.resetProgress();
+                                      await BestScoreService.resetAll();
                                       final prefs = await SharedPreferences.getInstance();
                                       await prefs.remove('shop_owned_characters');
                                       await prefs.remove('shop_using_character');
@@ -379,9 +359,9 @@ class _SectionTitle extends StatelessWidget {
         style: TextStyle(
           fontFamily: 'Nunito',
           fontWeight: FontWeight.w700,
-          fontSize: 11,
+          fontSize: 12,
           letterSpacing: 2,
-          color: JColors.lightGreen.withOpacity(0.7),
+          color: JColors.lightGreen,
         ),
       ),
     );
@@ -389,7 +369,7 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _ToggleTile extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -407,13 +387,13 @@ class _ToggleTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 20)),
+          Icon(icon, size: 25, color: Colors.lightGreenAccent),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -429,8 +409,8 @@ class _ToggleTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: JColors.lightGreen,
-            activeTrackColor: JColors.lightGreen.withOpacity(0.6),
+            activeColor: JColors.treeLightGreen,
+            activeTrackColor: JColors.lightGreen.withOpacity(0.8),
             inactiveThumbColor: Colors.white.withOpacity(0.4),
             inactiveTrackColor: Colors.white.withOpacity(0.1),
           ),
@@ -441,7 +421,7 @@ class _ToggleTile extends StatelessWidget {
 }
 
 class _SliderTile extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final double value;
   final ValueChanged<double> onChanged;
@@ -467,7 +447,7 @@ class _SliderTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(icon, style: const TextStyle(fontSize: 20)),
+              Icon(icon, size: 25, color: Colors.lightGreenAccent),
               const SizedBox(width: 12),
               Text(
                 label,
@@ -506,7 +486,7 @@ class _SliderTile extends StatelessWidget {
 }
 
 class _InfoTile extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final String value;
 
@@ -527,7 +507,7 @@ class _InfoTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 18)),
+          Icon(icon, size: 25, color: Colors.lightGreenAccent),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -536,7 +516,7 @@ class _InfoTile extends StatelessWidget {
                 fontFamily: 'Nunito',
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white,
               ),
             ),
           ),
@@ -545,7 +525,7 @@ class _InfoTile extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Nunito',
               fontSize: 14,
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white,
             ),
           ),
         ],

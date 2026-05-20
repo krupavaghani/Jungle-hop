@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/game_sound_service.dart';
 import '../utils/colors.dart';
 import 'game_screen.dart';
 import 'home_screen.dart';
@@ -23,10 +28,12 @@ class _GameOverScreenState extends State<GameOverScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _shakeController;
   late Animation<double> _shakeAnim;
+  AudioPlayer? _gameOverPlayer;
 
   @override
   void initState() {
     super.initState();
+    unawaited(_playGameOverSound());
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -51,8 +58,21 @@ class _GameOverScreenState extends State<GameOverScreen>
     _shakeController.forward();
   }
 
+  Future<void> _playGameOverSound() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool(GameSoundService.kSfxPrefsKey) ?? true)) return;
+    if (!mounted) return;
+    final p = AudioPlayer();
+    _gameOverPlayer = p;
+    await p.setReleaseMode(ReleaseMode.release);
+    try {
+      await p.play(AssetSource('audio/gameOver.mp3'));
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
+    unawaited(_gameOverPlayer?.dispose());
     _shakeController.dispose();
     super.dispose();
   }

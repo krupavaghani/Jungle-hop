@@ -57,10 +57,15 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.25),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.25)),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.25),
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_back_ios_new,
-                            color: Colors.white, size: 16),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -75,24 +80,31 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF0F0F12).withOpacity(0.85),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white.withOpacity(0.12)),
-                      ),
-                      child: Row(children: [
-                        const Text('🪙', style: TextStyle(fontSize: 14)),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$totalCoins',
-                          style: const TextStyle(
-                            fontFamily: 'FredokaOne',
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.12),
                         ),
-                      ]),
+                      ),
+                      child: Row(
+                        children: [
+                          const Text('🪙', style: TextStyle(fontSize: 14)),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$totalCoins',
+                            style: const TextStyle(
+                              fontFamily: 'FredokaOne',
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -104,7 +116,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Color(0xff3f4920).withOpacity(0.6),
+                    color: Color(0xff3f4920).withOpacity(0.75),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -164,16 +176,24 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                             Center(
                               child: GestureDetector(
                                 onTap: () => setState(() {
-                                  _visible = (_visible + 10).clamp(0, _coinsByLevel.length);
+                                  _visible = (_visible + 10).clamp(
+                                    0,
+                                    _coinsByLevel.length,
+                                  );
                                 }),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.green.withOpacity(0.25),
                                     borderRadius: BorderRadius.circular(24),
                                     border: Border.all(
-                                        color: Colors.greenAccent.withOpacity(0.6)),
+                                      color: Colors.greenAccent.withOpacity(
+                                        0.6,
+                                      ),
+                                    ),
                                   ),
                                   child: const Text(
                                     'Load More History',
@@ -196,6 +216,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
     );
   }
 
+  // -------------- Recent Earnings List --------------
   List<Widget> _buildRecentTiles(int totalCoins) {
     final indices = List<int>.generate(_coinsByLevel.length, (i) => i);
     final tiles = <Widget>[];
@@ -205,79 +226,96 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
       final level = i + 1;
       final coins = _coinsByLevel[i];
       final isEarned = coins > 0;
-      tiles.add(Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Color(0xff3f4920).withOpacity(0.6),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.12)),
+      tiles.add(
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xff3f4920).withOpacity(0.75),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.white.withOpacity(0.4)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isEarned
+                      ? Colors.green.withOpacity(0.25)
+                      : Colors.white.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    isEarned ? '⭐' : '🔒',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isEarned
+                          ? 'Level ${level.toString().padLeft(2, '0')}'
+                          : 'Level ${level.toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      isEarned ? 'Completed • Recent' : 'Incomplete • Locked',
+                      style: TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: isEarned
+                      ? Colors.yellow.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isEarned
+                        ? Colors.yellow.withOpacity(0.5)
+                        : Colors.white.withOpacity(0.15),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text('🪙', style: TextStyle(fontSize: 12)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${coins.abs()}',
+                      style: TextStyle(
+                        fontFamily: 'FredokaOne',
+                        fontSize: 14,
+                        color: isEarned ? JColors.yellow : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: isEarned ? Colors.green.withOpacity(0.25) : Colors.white.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(isEarned ? '⭐' : '🔒', style: const TextStyle(fontSize: 18)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isEarned ? 'Level ${level.toString().padLeft(2, '0')}' : 'Level ${level.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    isEarned ? 'Completed • Recent' : 'Incomplete • Locked',
-                    style: TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: isEarned ? Colors.yellow.withOpacity(0.2) : Colors.white.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: isEarned ? Colors.yellow.withOpacity(0.5) : Colors.white.withOpacity(0.15)),
-              ),
-              child: Row(
-                children: [
-                  const Text('🪙', style: TextStyle(fontSize: 12)),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${coins.abs()}',
-                    style: TextStyle(
-                      fontFamily: 'FredokaOne',
-                      fontSize: 14,
-                      color: isEarned ? JColors.yellow : Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ));
+      );
       count++;
     }
     return tiles;
