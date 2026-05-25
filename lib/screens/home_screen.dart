@@ -1,11 +1,10 @@
 import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/colors.dart';
 import 'level_select_screen.dart';
-import 'coin_history_screen.dart';
+import 'leaderBoard_screen.dart';
 import 'shop_screen.dart';
+import 'coin_purchase_screen.dart';
 import 'settings_screen.dart';
 import '../services/coin_history_service.dart';
 
@@ -16,63 +15,19 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  static const String _usingCharacterKey = 'shop_using_character';
-  static const Map<String, String> _characterEmojiMap = {
-    'Monkey': '🐒',
-    'Panda': '🐼',
-    'Koala': '🐨',
-    'Frog': '🐸',
-    'Fox': '🦊',
-    'Tiger': '🐯',
-    'Rabbit': '🐰',
-    'Deer': '🦌',
-    'Zebra': '🦓',
-    'Bear': '🐻',
-    'Lion': '🦁',
-    'Wolf': '🐺',
-    'Gorilla': '🦍',
-    'Elephant': '🐘',
-  };
-
-  late AnimationController _bounceController;
-  // Animation kept for potential subtle micro-motions; currently unused.
-  // late Animation<double> _bounceAnim;
-  // bool _musicOn = true;
-  String _selectedEmoji = '🐒';
+class _HomeScreenState extends State<HomeScreen> {
   int _availableCoins = 0;
 
   @override
   void initState() {
     super.initState();
-    _bounceController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-    // _bounceAnim = Tween<double>(begin: 0, end: -8).animate(
-    //   CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
-    // );
-    _loadSelectedCharacter();
     _loadCoins();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh selected character when returning from shop.
-    _loadSelectedCharacter();
     _loadCoins();
-  }
-
-  Future<void> _loadSelectedCharacter() async {
-    final prefs = await SharedPreferences.getInstance();
-    final usingName = prefs.getString(_usingCharacterKey) ?? 'Monkey';
-    final emoji = _characterEmojiMap[usingName] ?? '🐒';
-    if (!mounted) return;
-    if (_selectedEmoji != emoji) {
-      setState(() => _selectedEmoji = emoji);
-    }
   }
 
   Future<void> _loadCoins() async {
@@ -81,276 +36,137 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _availableCoins = coins);
   }
 
-  @override
-  void dispose() {
-    _bounceController.dispose();
-    super.dispose();
-  }
-
-  /// Responsive scale from shortest side (reference ~phone width 375).
   static double _responsiveScale(double shortestSide) =>
       (shortestSide / 375).clamp(0.72, 1.25);
+
+  void _openPlay() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LevelSelectScreen()),
+    ).then((_) => _loadCoins());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/backgroundImg.png'),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/home-bg.png',
             fit: BoxFit.cover,
           ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final mq = MediaQuery.sizeOf(context);
-              final shortest = mq.shortestSide;
-              final scale = _responsiveScale(shortest);
-              // Short viewports (landscape / small phones): tighten vertical gaps.
-              final maxH = constraints.maxHeight;
-              final vCompress =
-                  maxH < 520 ? (maxH / 520).clamp(0.5, 1.0) : 1.0;
-              final horizontalPad = (20 * scale).clamp(12.0, 28.0);
-              final avatar = (44 * scale).clamp(36.0, 56.0);
-              final headerTitle = (24 * scale).clamp(18.0, 30.0);
-              final settingsBtn = (40 * scale).clamp(36.0, 48.0);
-              final jungleTitle = (44 * scale).clamp(26.0, 52.0);
-              final seasonFont = (12 * scale).clamp(10.0, 14.0);
-              final seasonDot = (16 * scale).clamp(12.0, 18.0);
-              final playFont = (24 * scale).clamp(16.0, 28.0);
-              final playVPad = (15 * scale).clamp(10.0, 18.0);
-              final footerFont = (11 * scale).clamp(9.0, 12.0);
-              final gapSm = ((8 * scale).clamp(4.0, 12.0)) * vCompress;
-              final gapMd = ((16 * scale).clamp(8.0, 22.0)) * vCompress;
-              final gapLg = ((24 * scale).clamp(12.0, 28.0)) * vCompress;
-              final playWidth = min(360.0, constraints.maxWidth);
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final mq = MediaQuery.sizeOf(context);
+                final shortest = mq.shortestSide;
+                final scale = _responsiveScale(shortest);
+                final maxH = constraints.maxHeight;
+                final vCompress =
+                    maxH < 520 ? (maxH / 520).clamp(0.5, 1.0) : 1.0;
+                final horizontalPad = (16 * scale).clamp(10.0, 24.0);
+                final settingsSize = (52 * scale).clamp(44.0, 60.0);
+                final titleHeight = (55 * scale).clamp(40.0, 64.0);
+                final coinBarHeight = (40 * scale).clamp(34.0, 48.0);
+                final logoHeight = (145 * scale).clamp(70.0, 160.0);
+                final actionSize = (100 * scale).clamp(80.0, 120.0);
+                final gapSm = ((6 * scale).clamp(4.0, 10.0)) * vCompress;
+                final gapMd = ((12 * scale).clamp(8.0, 16.0)) * vCompress;
+                final playWidth = min(300.0, constraints.maxWidth - horizontalPad * 2);
 
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPad),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                        height: ((12 * scale).clamp(6.0, 16.0)) * vCompress),
-                    Row(
-                      children: [
-                        ClipOval(
-                          child: Image.asset(
-                            'assets/images/profileImg.png',
-                            width: avatar,
-                            height: avatar,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        SizedBox(width: (12 * scale).clamp(8.0, 16.0)),
-                        Expanded(
-                          child: Text(
-                            'Jungle Hop',
-                            style: TextStyle(
-                              fontFamily: 'FredokaOne',
-                              fontSize: headerTitle,
-                              color: Colors.white,
-                              shadows: const [
-                                Shadow(
-                                  color: Colors.black54,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 1),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingsScreen(),
-                            ),
-                          ),
-                          child: Container(
-                            width: settingsBtn,
-                            height: settingsBtn,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.25),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.settings,
-                              color: Colors.white,
-                              size: (22 * scale).clamp(18.0, 26.0),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: (18 * scale).clamp(10.0, 22.0)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        _Badge(
-                          icon: '🪙',
-                          label: _availableCoins.toString(),
-                          scale: scale,
-                          onTapPlus: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ShopScreen(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPad),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: (8 * scale).clamp(4.0, 12.0) * vCompress),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 3,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: (4 * scale).clamp(0.0, 12.0),
-                              ),
-                              child: Image.asset(
-                                'assets/images/monkey.png',
-                                fit: BoxFit.contain,
-                                width: double.infinity,
-                                semanticLabel: _selectedEmoji,
-                              ),
+                            child: Image.asset(
+                              'assets/images/person-name.png',
+                              height: titleHeight,
+                              fit: BoxFit.contain,
+                              alignment: Alignment.centerLeft,
                             ),
                           ),
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              'JUNGLE\nHOP',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'FredokaOne',
-                                height: 0.95,
-                                fontSize: jungleTitle,
-                                color: JColors.yellow,
-                                shadows: const [
-                                  Shadow(
-                                    color: Color(0x66000000),
-                                    blurRadius: 10,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
+                          SizedBox(width: (8 * scale).clamp(4.0, 12.0)),
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SettingsScreen(),
                               ),
                             ),
-                          ),
-                          SizedBox(height: gapSm),
-                          Center(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: (14 * scale).clamp(10.0, 18.0),
-                                vertical: (6 * scale).clamp(4.0, 10.0),
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '•',
-                                    style: TextStyle(
-                                      color: JColors.yellow,
-                                      fontSize: seasonDot,
-                                    ),
-                                  ),
-                                  SizedBox(width: (8 * scale).clamp(4.0, 12.0)),
-                                  Text(
-                                    'SEASON 1: MOSSY MAYHEM',
-                                    style: TextStyle(
-                                      fontFamily: 'Nunito',
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                      fontSize: seasonFont,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            child: Image.asset(
+                              'assets/images/setting.png',
+                              width: settingsSize,
+                              height: settingsSize,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: gapLg),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                      SizedBox(height: gapSm),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _CoinBar(
+                          coins: _availableCoins,
+                          height: coinBarHeight,
+                          scale: scale,
+                          onTapPlus: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const LevelSelectScreen(),
+                              builder: (_) => const CoinStoreScreen(),
                             ),
-                          );
-                        },
-                        child: Container(
-                          width: playWidth,
-                          padding: EdgeInsets.symmetric(vertical: playVPad),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                JColors.yellow,
-                                JColors.yellowDark,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              BoxShadow(
-                                color: JColors.yellow.withOpacity(0.35),
-                                blurRadius: (24 * scale).clamp(16.0, 32.0),
-                                offset: Offset(0, (10 * scale).clamp(6.0, 14.0)),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              '▶  PLAY',
-                              style: TextStyle(
-                                fontFamily: 'FredokaOne',
-                                fontSize: playFont,
-                                color: const Color(0xFF1A2A10),
-                                letterSpacing: 1,
+                          ).then((_) => _loadCoins()),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: (4 * scale).clamp(0.0, 8.0),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/monkey.png',
+                                  fit: BoxFit.contain,
+                                  width: double.infinity,
+                                ),
                               ),
                             ),
+                            Image.asset(
+                              'assets/images/logo.png',
+                              height: logoHeight,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(height: gapSm),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: gapSm),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _openPlay,
+                          child: Image.asset(
+                            'assets/images/play-button.png',
+                            width: playWidth,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: gapMd),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _LargeSoftButton(
-                            icon: '🎁',
-                            label: 'SHOP',
-                            scale: scale,
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const ShopScreen(),
-                              ),
-                            ).then((_) => _loadCoins()),
-                          ),
-                        ),
-                        SizedBox(width: (16 * scale).clamp(10.0, 22.0)),
-                        Expanded(
-                          child: _LargeSoftButton(
-                            icon: '🗂️',
-                            label: 'HISTORY',
-                            scale: scale,
+                      SizedBox(height: gapMd),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _HomeMenuButton(
+                            asset: 'assets/images/leaderboard-logo.png',
+                            size: actionSize,
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -358,148 +174,147 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                        height: ((10 * scale).clamp(6.0, 14.0)) * vCompress),
-                    Center(
-                      child: Text(
-                        'VERSION 1.0 • JUNGLE HOP STUDIO',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: footerFont,
-                          color: Colors.white.withOpacity(0.5),
-                          letterSpacing: (2 * scale).clamp(1.0, 2.5),
-                        ),
+                          _HomeMenuButton(
+                            asset: 'assets/images/characterChange.png',
+                            size: actionSize,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ShopScreen(),
+                              ),
+                            ).then((_) => _loadCoins()),
+                          ),
+                          _HomeMenuButton(
+                            asset: 'assets/images/getCoin.png',
+                            size: actionSize,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CoinStoreScreen(),
+                              ),
+                            ).then((_) => _loadCoins()),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final String icon;
-  final String label;
-  final double scale;
-  final VoidCallback? onTapPlus;
-  const _Badge({
-    required this.icon,
-    required this.label,
-    required this.scale,
-    this.onTapPlus,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final padH = (10 * scale).clamp(8.0, 14.0);
-    final padV = (6 * scale).clamp(4.0, 10.0);
-    final font = (14 * scale).clamp(11.0, 16.0);
-    final plus = (20 * scale).clamp(18.0, 24.0);
-    final iconPlus = (14 * scale).clamp(12.0, 16.0);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F0F12).withOpacity(0.85),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
-      child: Row(
-        children: [
-          Text(icon, style: TextStyle(fontSize: font)),
-          SizedBox(width: (6 * scale).clamp(4.0, 8.0)),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'FredokaOne',
-              fontSize: font,
-              color: Colors.white,
+                      SizedBox(height: gapMd),
+                    
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          if (onTapPlus != null) ...[
-            SizedBox(width: (8 * scale).clamp(6.0, 12.0)),
-            GestureDetector(
-              onTap: onTapPlus,
-              child: Container(
-                width: plus,
-                height: plus,
-                decoration: BoxDecoration(
-                  color: Colors.yellow.withOpacity(0.9),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.add,
-                  size: iconPlus,
-                  color: const Color(0xFF1A2A10),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
-class _LargeSoftButton extends StatelessWidget {
-  final String icon;
-  final String label;
+class _CoinBar extends StatelessWidget {
+  final int coins;
+  final double height;
   final double scale;
-  final VoidCallback onTap;
-  const _LargeSoftButton({
-    required this.icon,
-    required this.label,
+  final VoidCallback onTapPlus;
+
+  const _CoinBar({
+    required this.coins,
+    required this.height,
     required this.scale,
+    required this.onTapPlus,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fontSize = (16 * scale).clamp(13.0, 18.0);
+    final plusSize = (26 * scale).clamp(22.0, 30.0);
+    final coinIcon = (30 * scale).clamp(18.0, 35.0);
+
+    return SizedBox(
+      height: height,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset(
+            'assets/images/cost-board.png',
+            height: height,
+            width: 140,
+            fit: BoxFit.fill,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: (14 * scale).clamp(10.0, 18.0)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/coin.png',
+                  height: coinIcon,
+                  fit: BoxFit.fill,
+                ),
+                SizedBox(width: (6 * scale).clamp(4.0, 8.0)),
+                Text(
+                  coins.toString(),
+                  style: TextStyle(
+                    fontFamily: 'FredokaOne',
+                    fontSize: fontSize,
+                    color: const Color(0xFF5C3408),
+                    height: 1,
+                  ),
+                ),
+                SizedBox(width: (10 * scale).clamp(6.0, 14.0)),
+                GestureDetector(
+                  onTap: onTapPlus,
+                  child: Container(
+                    width: plusSize,
+                    height: plusSize,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF4CAF50),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x66000000),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: (16 * scale).clamp(14.0, 18.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _HomeMenuButton extends StatelessWidget {
+  final String asset;
+  final double size;
+  final VoidCallback onTap;
+
+  const _HomeMenuButton({
+    required this.asset,
+    required this.size,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final vPad = (16 * scale).clamp(10.0, 20.0);
-    final emoji = (18 * scale).clamp(14.0, 22.0);
-    final labelSize = (16 * scale).clamp(12.0, 18.0);
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: vPad),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6FD680), Color(0xFF1F8D4A)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: (12 * scale).clamp(8.0, 16.0),
-              offset: Offset(0, (6 * scale).clamp(4.0, 8.0)),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(icon, style: TextStyle(fontSize: emoji)),
-            SizedBox(width: (8 * scale).clamp(4.0, 10.0)),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'FredokaOne',
-                fontSize: labelSize,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: Image.asset(
+        asset,
+        width: size,
+        height: size,
+        fit: BoxFit.fill,
       ),
     );
   }

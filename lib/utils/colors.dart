@@ -29,45 +29,11 @@ class JColors {
   // UI overlays
   static const glassWhite = Color(0x1AFFFFFF);
   static const glassBorder = Color(0x26FFFFFF);
+   static const Color glassBorderStrong = Color(0x33FFFFFF);
 
   // Red
   static const danger = Color(0xFFFF6060);
   static const dangerGlow = Color(0x1FFF3C3C);
-
-  // Gradients
-  static const splashGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF0D2B0D), Color(0xFF1A4A12), Color(0xFF2D6E1A)],
-    stops: [0.0, 0.4, 1.0],
-  );
-
-  static const homeGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF0A2208), Color(0xFF1A5212), Color(0xFF2D7E1A)],
-    stops: [0.0, 0.5, 1.0],
-  );
-
-  static const gameGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF87CEEB), Color(0xFFB8E4F0), Color(0xFF5A9E3A), Color(0xFF3D7225)],
-    stops: [0.0, 0.3, 0.7, 1.0],
-  );
-
-  static const gameOverGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF120808), Color(0xFF2A0D0D), Color(0xFF1A1005)],
-    stops: [0.0, 0.6, 1.0],
-  );
-
-  static const shopGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF0A1F08), Color(0xFF162E0F)],
-  );
 
   static const playButtonGradient = LinearGradient(
     begin: Alignment.topLeft,

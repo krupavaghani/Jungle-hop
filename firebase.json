@@ -1,0 +1,6 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {"platforms":{"android":{"default":{"projectId":"jungle-jumpping","appId":"1:73459807087:android:718db1098b36445fd0ae9a","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"jungle-jumpping","appId":"1:73459807087:ios:574b4a2c3cf1216cd0ae9a","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"jungle-jumpping","configurations":{"android":"1:73459807087:android:718db1098b36445fd0ae9a","ios":"1:73459807087:ios:574b4a2c3cf1216cd0ae9a"}}}}}}

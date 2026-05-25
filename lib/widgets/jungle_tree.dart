@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/colors.dart';
+import 'package:jungle_jumpping/utils/colors.dart';
 
 class JungleTree extends StatelessWidget {
   final double height;
@@ -38,7 +38,7 @@ class JungleTree extends StatelessWidget {
                 width: cW,
                 height: cH,
                 decoration: BoxDecoration(
-                  color: JungleColors.darkLeaf,
+                  color: JColors.treeGreen,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(cW / 2),
                     topRight: Radius.circular(cW / 2),
@@ -54,7 +54,7 @@ class JungleTree extends StatelessWidget {
                   width: cW * 0.75,
                   height: cH * 0.75,
                   decoration: BoxDecoration(
-                    color: JungleColors.midGreen,
+                    color: JColors.midGreen,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(cW * 0.375),
                       topRight: Radius.circular(cW * 0.375),
@@ -71,7 +71,7 @@ class JungleTree extends StatelessWidget {
             width: trunkW,
             height: trunkH,
             decoration: BoxDecoration(
-              color: JungleColors.trunkBrown,
+              color: JColors.trunk,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

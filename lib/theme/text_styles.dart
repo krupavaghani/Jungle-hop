@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'colors.dart';
+import 'package:jungle_jumpping/utils/colors.dart';
 
 class JungleTextStyles {
   // Fredoka One — display/game headings (bundled in pubspec.yaml)
   static TextStyle fredoka({
     double size = 24,
-    Color color = JungleColors.goldenYellow,
+    Color color = JColors.yellow,
     double? letterSpacing,
   }) =>
       TextStyle(

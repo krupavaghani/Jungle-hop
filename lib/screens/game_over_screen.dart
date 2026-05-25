@@ -1,22 +1,20 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/game_sound_service.dart';
-import '../utils/colors.dart';
 import 'game_screen.dart';
 import 'home_screen.dart';
 
 class GameOverScreen extends StatefulWidget {
   final int score;
-  final int bestScore;
   final int level;
 
   const GameOverScreen({
     super.key,
     required this.score,
-    required this.bestScore,
     this.level = 1,
   });
 
@@ -33,23 +31,23 @@ class _GameOverScreenState extends State<GameOverScreen>
   @override
   void initState() {
     super.initState();
-    unawaited(_playGameOverSound());
+    _playGameOverSound();
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
 
     _shakeAnim = TweenSequence([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: -8.0, end: 8.0), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: 8.0, end: 0.0), weight: 25),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 25),
+      TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 6.0, end: 0.0), weight: 25),
     ]).animate(_shakeController);
 
-    int repeatCount = 0;
+    var repeatCount = 0;
     _shakeController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         repeatCount++;
-        if (repeatCount < 3) {
+        if (repeatCount < 2) {
           _shakeController.reset();
           _shakeController.forward();
         }
@@ -72,154 +70,201 @@ class _GameOverScreenState extends State<GameOverScreen>
 
   @override
   void dispose() {
-    unawaited(_gameOverPlayer?.dispose());
+    _gameOverPlayer?.dispose();
     _shakeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final contentWidth = min(size.width * 0.9, 380.0);
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: JColors.gameOverGradient),
-        child: Stack(
-          children: [
-            // Red glow in center
-            Center(
-              child: Container(
-                width: 280,
-                height: 280,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x1FFF3C3C),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/splash-bg.png',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.15),
+                  Colors.black.withValues(alpha: 0.45),
+                ],
               ),
             ),
-
-            // Main content
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Skull emoji with shake
                     AnimatedBuilder(
                       animation: _shakeAnim,
-                      builder: (_, __) => Transform.translate(
+                      builder: (_, child) => Transform.translate(
                         offset: Offset(_shakeAnim.value, 0),
-                        child: const Text('💀',
-                            style: TextStyle(fontSize: 64)),
+                        child: child,
+                      ),
+                      child: Image.asset(
+                        'assets/images/gameOver.png',
+                        width: contentWidth,
+                        fit: BoxFit.contain,
                       ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // Game Over title
-                    const Text(
-                      'Game Over!',
-                      style: TextStyle(
-                        fontFamily: 'FredokaOne',
-                        fontSize: 38,
-                        color: JColors.danger,
-                        shadows: [
-                          Shadow(
-                            color: Color(0x7FFF6060),
-                            blurRadius: 20,
-                          ),
+                    SizedBox(height: size.height * 0.02),
+                    _GameOverScorePanel(
+                      width: contentWidth * 0.8,
+                      score: widget.score,
+                    ),
+                    SizedBox(height: size.height * 0.028),
+                    _GameOverActionButton(
+                      width: contentWidth * 0.92,
+                      label: 'PLAY AGAIN',
+                      icon: Icons.play_arrow_rounded,
+                      iconBoxColor: const Color(0xFF5C3D1E),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFFFFE566),
+                          Color(0xFFFFB82B),
+                          Color(0xFFE87800),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Score display
-                    Text(
-                      'Final Score',
-                      style: TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${widget.score}',
-                      style: const TextStyle(
-                        fontFamily: 'FredokaOne',
-                        fontSize: 56,
-                        color: JColors.yellow,
-                      ),
-                    ),
-                    Text(
-                      'Best Score: ${widget.bestScore}',
-                      style: TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.3),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Buttons
-                    _GoButton(
-                      label: '🔄  Play Again',
-                      isPrimary: true,
+                      borderColor: const Color(0xFF7A4A08),
+                      textColor: const Color(0xFF3D2814),
                       onTap: () => Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                            builder: (_) => GameScreen(level: widget.level)),
+                          builder: (_) => GameScreen(level: widget.level),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _GoButton(
-                      label: '🏠  Back to Home',
-                      isPrimary: false,
+                    _GameOverActionButton(
+                      width: contentWidth * 0.92,
+                      label: 'BACK TO HOME',
+                      icon: Icons.home_rounded,
+                      iconBoxColor: const Color(0xFF1B4A10),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF7AE85A),
+                          Color(0xFF3D9E28),
+                          Color(0xFF2A6E18),
+                        ],
+                      ),
+                      borderColor: const Color(0xFF1B4A10),
+                      textColor: Colors.white,
                       onTap: () => Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
                         (r) => false,
                       ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Share & Rate
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          child: const Text('📤',
-                              style: TextStyle(fontSize: 28)),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          child: const Text('⭐',
-                              style: TextStyle(fontSize: 28)),
-                        ),
-                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _GoButton extends StatelessWidget {
+class _GameOverScorePanel extends StatelessWidget {
+  final double width;
+  final int score;
+
+  const _GameOverScorePanel({
+    required this.width,
+    required this.score,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset(
+            'assets/images/popUp-bg.png',
+            width: width,
+            fit: BoxFit.fill,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.12,
+              vertical: width * 0.1,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'FINAL SCORE',
+                  style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                    letterSpacing: 1.4,
+                    color: Color(0xFF4A3219),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '$score',
+                  style: const TextStyle(
+                    fontFamily: 'FredokaOne',
+                    fontSize: 52,
+                    height: 1,
+                    color: Color(0xFF3D2814),
+                    shadows: [
+                      Shadow(
+                        color: Color(0x33000000),
+                        offset: Offset(0, 2),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GameOverActionButton extends StatelessWidget {
+  final double width;
   final String label;
-  final bool isPrimary;
+  final IconData icon;
+  final Color iconBoxColor;
+  final Gradient gradient;
+  final Color borderColor;
+  final Color textColor;
   final VoidCallback onTap;
 
-  const _GoButton({
+  const _GameOverActionButton({
+    required this.width,
     required this.label,
-    required this.isPrimary,
+    required this.icon,
+    required this.iconBoxColor,
+    required this.gradient,
+    required this.borderColor,
+    required this.textColor,
     required this.onTap,
   });
 
@@ -228,41 +273,68 @@ class _GoButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        width: width,
+        padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          gradient: isPrimary
-              ? const LinearGradient(
-                  colors: [JColors.yellow, JColors.yellowDark],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isPrimary ? null : Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: isPrimary
-              ? null
-              : Border.all(color: Colors.white.withOpacity(0.12)),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: JColors.yellow.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'FredokaOne',
-              fontSize: 20,
-              color: isPrimary
-                  ? const Color(0xFF1A2A10)
-                  : Colors.white.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(32),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF8B5E34), Color(0xFF4A3219)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: borderColor, width: 2.5),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconBoxColor,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(icon, color: Colors.white, size: 26),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'FredokaOne',
+                    fontSize: 16,
+                    letterSpacing: 0.5,
+                    color: textColor,
+                    shadows: [
+                      if (textColor == Colors.white)
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 52),
+            ],
           ),
         ),
       ),
